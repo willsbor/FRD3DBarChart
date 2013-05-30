@@ -1,9 +1,22 @@
+# Xcode
+build/*
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+*.xcworkspace
+!default.xcworkspace
+xcuserdata
+profile
+*.moved-aside
+Pods/*
+Podfile.lock
 
-FRD3DBarChart.xcodeproj/project.xcworkspace/xcuserdata/sebastien.xcuserdatad/UserInterfaceState.xcuserstate
+.DS_Store
 
-*.xcbkptlist
-
-FRD3DBarChart.xcodeproj/xcuserdata/sebastien.xcuserdatad/xcdebugger/Breakpoints.xcbkptlist
-
-
+# for private pod spec 
 FRD3DBarChart_kang.podspec
