@@ -582,19 +582,20 @@ CTFontRef CTFontCreateFromUIFont(UIFont *font)
                 rightAlign:(BOOL) rightAlign
 {
     CGColorSpaceRef rgbColorSpace = CGColorSpaceCreateDeviceRGB();
-
     
-    CGContextRef _composedImageContext = CGBitmapContextCreate(NULL, 
-                                                               width, 
-                                                               height, 
-                                                               8, 
-                                                               width*4, 
-                                                               rgbColorSpace, 
+    
+    CGContextRef _composedImageContext = CGBitmapContextCreate(NULL,
+                                                               width,
+                                                               height,
+                                                               8,
+                                                               width*4,
+                                                               rgbColorSpace,
                                                                kCGBitmapByteOrderDefault|kCGImageAlphaPremultipliedFirst);
     
     // draw your things into _composedImageContext
-    char* txt	= (char *)[text cStringUsingEncoding:NSASCIIStringEncoding];
-
+    //char* txt	= (char *)[text cStringUsingEncoding:/*NSASCIIStringEncoding*/NSMacOSRomanStringEncoding];
+    ///< willsbor Kang 20130530-- for non-ASCII text
+    
     CGContextSelectFont(_composedImageContext, [fontName cStringUsingEncoding:NSASCIIStringEncoding], 60.0, kCGEncodingMacRoman);
     CGContextSetTextDrawingMode(_composedImageContext, kCGTextFill);
     CGContextSetFillColorWithColor(_composedImageContext, color.CGColor);
@@ -604,19 +605,33 @@ CTFontRef CTFontCreateFromUIFont(UIFont *font)
 	
     CGSize expectedLabelSize = [text sizeWithFont:[UIFont fontWithName:fontName size:60.0] constrainedToSize:CGSizeMake(width, height)];
     
+    /// willsbor Kang 20130530++ for non-ASCII text
+    UIGraphicsPushContext(_composedImageContext);
+    CGContextTranslateCTM(_composedImageContext, 0, height);
+    CGContextScaleCTM(_composedImageContext, 1.0, -1.0);
+    
     if (rightAlign)
-    {       
+    {
         float offsetX = width - expectedLabelSize.width;
-        if (offsetX < 0 || offsetX >= width) 
+        if (offsetX < 0 || offsetX >= width)
         {
             offsetX = 0.0; // string is bigger than our allocated space.
         }
-        CGContextShowTextAtPoint(_composedImageContext, offsetX , expectedLabelSize.height / 2.0 , txt, strlen(txt));
+        
+        /// willsbor Kang 20130530+- for non-ASCII text
+        //CGContextShowTextAtPoint(_composedImageContext, offsetX , expectedLabelSize.height / 2.0 , txt, strlen(txt));
+        [text drawAtPoint:(CGPointMake(offsetX , expectedLabelSize.height / 2.0)) withFont:[UIFont fontWithName:fontName size:60.0]];
+        
     }
-    else 
+    else
     {
-        CGContextShowTextAtPoint(_composedImageContext, 0, expectedLabelSize.height / 2.0, txt, strlen(txt));
+        /// willsbor Kang 20130530+- for non-ASCII text
+        //CGContextShowTextAtPoint(_composedImageContext, 0, expectedLabelSize.height / 2.0, txt, strlen(txt));
+        [text drawAtPoint:(CGPointMake(0, expectedLabelSize.height / 2.0)) withFont:[UIFont fontWithName:fontName size:60.0]];
     }
+    
+    /// willsbor Kang 20130530++ for non-ASCII text
+    UIGraphicsPopContext();
     
     //finally turn the context into a CGImage
     CGImageRef cgImage = CGBitmapContextCreateImage(_composedImageContext);
@@ -628,6 +643,7 @@ CTFontRef CTFontCreateFromUIFont(UIFont *font)
     CGColorSpaceRelease(rgbColorSpace);
     
     return image;
+
 }
 
 
