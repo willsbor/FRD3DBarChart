@@ -575,10 +575,10 @@ CTFontRef CTFontCreateFromUIFont(UIFont *font)
 
 
 -(UIImage *) imageWithText:(NSString *)text
-                  fontName:(NSString *)fontName 
+                  fontName:(NSString *)fontName
                      color:(UIColor *)color
-                     width:(float)width 
-                    height:(float)height 
+                     width:(float)width
+                    height:(float)height
                 rightAlign:(BOOL) rightAlign
 {
     CGColorSpaceRef rgbColorSpace = CGColorSpaceCreateDeviceRGB();
@@ -610,6 +610,16 @@ CTFontRef CTFontCreateFromUIFont(UIFont *font)
     CGContextTranslateCTM(_composedImageContext, 0, height);
     CGContextScaleCTM(_composedImageContext, 1.0, -1.0);
     
+    //// modify text size automatic
+    CGFloat fsize = 60;
+    CGSize s;
+    do {
+        s = [text sizeWithFont:[UIFont fontWithName:fontName size:fsize]
+             constrainedToSize:CGSizeMake(MAXFLOAT, MAXFLOAT)
+                 lineBreakMode:NSLineBreakByWordWrapping];
+        fsize -= 1.0;
+    } while (s.width > width && fsize > 10);
+    
     if (rightAlign)
     {
         float offsetX = width - expectedLabelSize.width;
@@ -620,14 +630,13 @@ CTFontRef CTFontCreateFromUIFont(UIFont *font)
         
         /// willsbor Kang 20130530+- for non-ASCII text
         //CGContextShowTextAtPoint(_composedImageContext, offsetX , expectedLabelSize.height / 2.0 , txt, strlen(txt));
-        [text drawAtPoint:(CGPointMake(offsetX , expectedLabelSize.height / 2.0)) withFont:[UIFont fontWithName:fontName size:60.0]];
-        
+        [text drawAtPoint:(CGPointMake(offsetX , expectedLabelSize.height / 2.0)) withFont:[UIFont fontWithName:fontName size:fsize]];
     }
     else
     {
         /// willsbor Kang 20130530+- for non-ASCII text
         //CGContextShowTextAtPoint(_composedImageContext, 0, expectedLabelSize.height / 2.0, txt, strlen(txt));
-        [text drawAtPoint:(CGPointMake(0, expectedLabelSize.height / 2.0)) withFont:[UIFont fontWithName:fontName size:60.0]];
+        [text drawAtPoint:(CGPointMake(0, expectedLabelSize.height / 2.0)) withFont:[UIFont fontWithName:fontName size:fsize]];
     }
     
     /// willsbor Kang 20130530++ for non-ASCII text
@@ -643,7 +652,7 @@ CTFontRef CTFontCreateFromUIFont(UIFont *font)
     CGColorSpaceRelease(rgbColorSpace);
     
     return image;
-
+    
 }
 
 
